@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run test suite
+        run: pytest tests/ -v
+
+      # Note: narrative_agent.py and the full agent_graph.py pipeline require
+      # ANTHROPIC_API_KEY and are not exercised here. The eval_harness and
+      # stats_engine tests above cover the deterministic, most safety-critical
+      # parts of the pipeline without needing API credentials in CI.
