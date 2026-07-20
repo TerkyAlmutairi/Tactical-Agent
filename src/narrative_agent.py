@@ -16,7 +16,7 @@ import os
 
 from anthropic import Anthropic
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-sonnet-5"
 
 SYSTEM_PROMPT = """You are a football tactical analyst writing a match report.
 
