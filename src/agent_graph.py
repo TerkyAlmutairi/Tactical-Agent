@@ -45,13 +45,15 @@ def node_fetch_data(state: PipelineState) -> PipelineState:
     match = find_match(state["competition_id"], state["season_id"], state["team_a"], state["team_b"])
     if match is None:
         return {**state, "status": "error: match not found"}
-    events = load_events(match.match_id)
-    state["_events"] = events  # not part of TypedDict on purpose (internal only)
     return {**state, "match_id": match.match_id, "status": "data_fetched"}
 
 
 def node_compute_stats(state: PipelineState) -> PipelineState:
-    events = state["_events"]
+    # Re-fetch events here rather than passing the DataFrame through LangGraph
+    # state: LangGraph only propagates fields declared in the state schema, and
+    # a raw DataFrame isn't something we want serialized through state anyway
+    # (it's cheap to re-fetch, and it keeps each node's state fully typed/JSON-able).
+    events = load_events(state["match_id"])
     brief = build_match_brief(state["match_id"], events)
     return {**state, "match_brief": brief.as_dict(), "status": "stats_computed"}
 
